@@ -15,7 +15,8 @@ client = hvac.Client(url=VAULT_ADDR, token=VAULT_TOKEN)
 def index():
     # Load tokens from YAML file
     with open('tokens.yaml', 'r') as f:
-        tokens = yaml.safe_load(f)
+        config = yaml.safe_load(f)
+        tokens = config.get('tokens', [])
 
     token_info_list = []
     for token in tokens:
