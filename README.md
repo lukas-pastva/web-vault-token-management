@@ -5,11 +5,19 @@ This web application allows you to view and manage HashiCorp Vault tokens define
 #### Example `tokens.yaml`
 
 ```yaml
-- description: "Token for Application A"
-  accessor: "s.HASHED_ACCESSOR_VALUE_1"
+# tokens.yaml
 
-- description: "Token for Application B"
-  accessor: "s.HASHED_ACCESSOR_VALUE_2"
+tokens:
+  - description: "Token for Application A"
+    accessor: "s.HASHED_ACCESSOR_VALUE_1"
+
+  - description: "Token for Application B"
+    accessor: "s.HASHED_ACCESSOR_VALUE_2"
+
+  - description: "Token for Application C"
+    accessor: "s.HASHED_ACCESSOR_VALUE_3"
+
+  # Add more tokens as needed following the same structure.
 ```
 
 #### Example policy.hcl
