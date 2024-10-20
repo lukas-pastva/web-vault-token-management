@@ -14,6 +14,9 @@ VAULT_ADDR = os.getenv('VAULT_ADDR', 'http://127.0.0.1:8200')
 VAULT_TOKENS_FILE = os.getenv('VAULT_TOKENS_FILE', '/vault/secrets/tokens.yaml')
 VAULT_TOKEN = os.getenv('VAULT_TOKEN')
 
+# Renewal increment configuration
+TOKEN_RENEW_INCREMENT = os.getenv('TOKEN_RENEW_INCREMENT', '2160h')  # Default to 2160 hours (~3 months)
+
 client = hvac.Client(url=VAULT_ADDR, token=VAULT_TOKEN)
 
 @app.route('/')
@@ -113,19 +116,9 @@ def renew():
         return redirect(url_for('index'))
 
     try:
-        # Renew token using accessor by 3 months
-        # Vault expects duration in a string format, e.g., "43800h" (~5 years) or use a specific timestamp
-        # Since 3 months can vary, it's safer to use a fixed number of hours or a timestamp
-        # Here, we'll use a timestamp 3 months from now
-
-        # Calculate timestamp 3 months from now
-        new_expire_time = datetime.now(timezone.utc) + relativedelta(months=+3)
-        new_expire_time_iso = new_expire_time.isoformat()
-
-        client.auth.token.renew_accessor(accessor, increment='43800h')  # 43800 hours is approximately 5 years
-        # Note: Vault's token renewal capabilities might have maximum limits; adjust as necessary.
-
-        flash('Token successfully renewed by 3 months.', 'success')
+        # Renew token using accessor by the configured increment
+        client.auth.token.renew_accessor(accessor, increment=TOKEN_RENEW_INCREMENT)
+        flash(f'Token successfully renewed by {TOKEN_RENEW_INCREMENT}.', 'success')
     except hvac.exceptions.InvalidRequest as e:
         flash(f'Failed to renew token: {str(e)}', 'danger')
     except hvac.exceptions.Forbidden as e:
