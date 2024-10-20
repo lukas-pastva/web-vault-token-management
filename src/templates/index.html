@@ -15,6 +15,13 @@
                 max-width: 1400px; /* Increased from 1200px to make table wider */
             }
         }
+        /* Custom background colors for expiring soon and expired tokens */
+        .expiring-soon {
+            background-color: #fff3cd !important; /* Light yellow */
+        }
+        .expired {
+            background-color: #f8d7da !important; /* Light red */
+        }
     </style>
 </head>
 <body>
@@ -51,7 +58,13 @@
             </thead>
             <tbody>
             {% for token in tokens %}
-            <tr>
+            <tr 
+                {% if token.expiration_time_display == 'Expired' %}
+                    class="expired"
+                {% elif token.is_expiring_soon %}
+                    class="expiring-soon"
+                {% endif %}
+            >
                 <td>{{ token.name }}</td>
                 <td>{{ token.accessor }}</td>
                 <td>{{ token.expiration_time_display }}</td>

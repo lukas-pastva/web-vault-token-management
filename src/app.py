@@ -43,7 +43,8 @@ def index():
                 'accessor': 'N/A',
                 'expiration_time_display': 'N/A',
                 'actual_expiration_time': 'N/A',
-                'policies': []
+                'policies': [],
+                'is_expiring_soon': False
             })
             continue
 
@@ -65,19 +66,27 @@ def index():
                 actual_expiration = expire_time.strftime('%Y-%m-%d %H:%M:%S %Z')
                 expiration_display = f"{weeks} weeks"
 
+                # Determine if expiring soon (within 30 days)
+                is_expiring_soon = delta.days < 30 and delta.total_seconds() > 0
+
                 # Handle past expiration
                 if delta.total_seconds() < 0:
                     expiration_display = "Expired"
+                    actual_expiration = expire_time.strftime('%Y-%m-%d %H:%M:%S %Z')
+                    is_expiring_soon = False  # Already expired
+
             else:
                 expiration_display = 'N/A'
                 actual_expiration = 'N/A'
+                is_expiring_soon = False
 
             token_info_list.append({
                 'name': name,
                 'accessor': accessor,
                 'expiration_time_display': expiration_display,
                 'actual_expiration_time': actual_expiration,
-                'policies': policies
+                'policies': policies,
+                'is_expiring_soon': is_expiring_soon
             })
         except hvac.exceptions.Forbidden:
             # Handle permission errors
@@ -86,7 +95,8 @@ def index():
                 'accessor': accessor,
                 'expiration_time_display': 'Permission Denied',
                 'actual_expiration_time': 'Permission Denied',
-                'policies': []
+                'policies': [],
+                'is_expiring_soon': False
             })
         except hvac.exceptions.InvalidRequest:
             # Handle invalid accessors
@@ -95,7 +105,8 @@ def index():
                 'accessor': accessor,
                 'expiration_time_display': 'Invalid Accessor',
                 'actual_expiration_time': 'Invalid Accessor',
-                'policies': []
+                'policies': [],
+                'is_expiring_soon': False
             })
         except Exception as e:
             # Handle other exceptions
@@ -104,7 +115,8 @@ def index():
                 'accessor': accessor,
                 'expiration_time_display': f'Error: {str(e)}',
                 'actual_expiration_time': f'Error: {str(e)}',
-                'policies': []
+                'policies': [],
+                'is_expiring_soon': False
             })
     return render_template('index.html', tokens=token_info_list)
 
@@ -118,7 +130,7 @@ def renew():
     try:
         # Renew token using accessor by the configured increment
         client.auth.token.renew_accessor(accessor, increment=TOKEN_RENEW_INCREMENT)
-        flash(f'Token successfully renewed by {TOKEN_RENEW_INCREMENT}.', 'success')
+        flash('Token successfully renewed.', 'success')
     except hvac.exceptions.InvalidRequest as e:
         flash(f'Failed to renew token: {str(e)}', 'danger')
     except hvac.exceptions.Forbidden as e:
