@@ -7,6 +7,7 @@ app = Flask(__name__)
 
 # Vault configuration
 VAULT_ADDR = os.getenv('VAULT_ADDR', 'http://127.0.0.1:8200')
+VAULT_TOKENS_FILE = os.getenv('VAULT_TOKENS_FILE', '/vault/secrets/tokens.yaml')
 VAULT_TOKEN = os.getenv('VAULT_TOKEN')
 
 client = hvac.Client(url=VAULT_ADDR, token=VAULT_TOKEN)
@@ -14,14 +15,14 @@ client = hvac.Client(url=VAULT_ADDR, token=VAULT_TOKEN)
 @app.route('/')
 def index():
     # Load tokens from YAML file
-    with open('tokens.yaml', 'r') as f:
+    with open(VAULT_TOKENS_FILE, 'r') as f:
         config = yaml.safe_load(f)
         tokens = config.get('tokens', [])
 
     token_info_list = []
     for token in tokens:
         accessor = token['accessor']
-        description = token.get('description', 'No Description')
+        name = token.get('name', 'No name')
         try:
             # Lookup token information using accessor
             lookup_response = client.auth.token.lookup_accessor(accessor)
@@ -29,7 +30,7 @@ def index():
             policies = data.get('policies', [])
             expiration_time = data.get('expire_time', 'N/A')
             token_info_list.append({
-                'description': description,
+                'name': name,
                 'accessor': accessor,
                 'expiration_time': expiration_time,
                 'policies': policies
@@ -37,7 +38,7 @@ def index():
         except hvac.exceptions.InvalidRequest:
             # Handle invalid accessors
             token_info_list.append({
-                'description': description,
+                'name': name,
                 'accessor': accessor,
                 'expiration_time': 'Invalid Accessor',
                 'policies': []
