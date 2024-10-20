@@ -10,7 +10,7 @@ app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'asdf')
 
 # Vault configuration
-VAULT_ADDR = 
+VAULT_ADDR = os.getenv('VAULT_ADDR', 'http://127.0.0.1:8200')
 VAULT_TOKENS_FILE = os.getenv('VAULT_TOKENS_FILE', '/vault/secrets/tokens.yaml')
 VAULT_TOKEN = os.getenv('VAULT_TOKEN')
 
