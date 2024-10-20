@@ -12,7 +12,7 @@
         /* Custom CSS to make the table wider on PC */
         @media (min-width: 992px) {
             .container {
-                max-width: 1200px;
+                max-width: 1400px; /* Increased from 1200px to make table wider */
             }
         }
     </style>
@@ -43,7 +43,8 @@
             <tr>
                 <th>Name</th>
                 <th>Accessor</th>
-                <th>Expiration Time (Weeks)</th>
+                <th>Weeks Remaining</th>
+                <th>Actual Expiration Time</th>
                 <th>Policies</th>
                 <th>Actions</th>
             </tr>
@@ -53,7 +54,8 @@
             <tr>
                 <td>{{ token.name }}</td>
                 <td>{{ token.accessor }}</td>
-                <td>{{ token.expiration_time }}</td>
+                <td>{{ token.expiration_time_display }}</td>
+                <td>{{ token.actual_expiration_time }}</td>
                 <td>{{ token.policies|join(', ') }}</td>
                 <td>
                     <form action="{{ url_for('renew') }}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to renew this token by 3 months?');">
@@ -79,11 +81,13 @@
 <script>
     $(document).ready(function() {
         $('#tokensTable').DataTable({
-            "order": [[ 2, "asc" ]], // Default sort by Expiration Time
+            "order": [[ 2, "asc" ]], // Default sort by Weeks Remaining
             "columnDefs": [
-                { "orderable": true, "targets": [0, 2, 3] },
-                { "orderable": false, "targets": [1, 4] }
-            ]
+                { "orderable": true, "targets": [0, 2, 3, 4] },
+                { "orderable": false, "targets": [1, 5] }
+            ],
+            "pageLength": 25, // Adjust as needed
+            "lengthMenu": [10, 25, 50, 100]
         });
     });
 </script>
