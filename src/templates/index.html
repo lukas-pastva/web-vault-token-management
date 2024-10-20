@@ -14,7 +14,7 @@
         <table class="table table-striped table-bordered">
             <thead class="thead-dark">
             <tr>
-                <th>Description</th>
+                <th>Name</th>
                 <th>Accessor</th>
                 <th>Expiration Time</th>
                 <th>Policies</th>
@@ -24,7 +24,7 @@
             <tbody>
             {% for token in tokens %}
             <tr>
-                <td>{{ token.description }}</td>
+                <td>{{ token.name }}</td>
                 <td>{{ token.accessor }}</td>
                 <td>{{ token.expiration_time }}</td>
                 <td>{{ token.policies|join(', ') }}</td>
